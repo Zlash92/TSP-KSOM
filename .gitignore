@@ -1,0 +1,9 @@
+.idea/
+.idea
+.idea/*
+.idea/workspace.xml
+
+
+*.pyc
+
+.DS_Store
