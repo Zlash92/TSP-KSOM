@@ -226,38 +226,60 @@ def tsp_som(cities_datafile, number_of_iterations, plot_interval, decay_type, nu
     neurons = initialize_neurons(number_of_neurons, norm_cities)
     neighborhood_radius = len(cities) * neighborhood_radius_fraction
 
-    init_distance, tour = get_tour(norm_cities, neurons, norm_scale)
+    decay_constant = number_of_iterations / math.log(neighborhood_radius)  # Used for exponential decay of radius
+    init_distance, init_tour = get_tour(norm_cities, neurons, norm_scale)
 
-    ####INFO####
-    print("Iteration 0")
+    ####Initial statistics####
+    print("\nIteration 0")
     print("Neighborhood radius:", neighborhood_radius)
     print("Number of neurons:", number_of_neurons)
     print("Initial tour distance:", init_distance)
-    ############
+    print("Decay constant:", decay_constant)
+    ##########################
 
-    plot_map(norm_cities, neurons, save=False)
-    plot_map(norm_cities, tour)
+    # plot_map(norm_cities, neurons, save=False)
+    # plot_map(norm_cities, init_tour)  # Initial city-neuron allocation
 
     for i in range(number_of_iterations):
         chosen_city = random.choice(norm_cities.keys())
         bmu = get_closest_neuron(neurons, norm_cities[chosen_city])  # Best matching unit
         update_neuron_weights(bmu, norm_cities[chosen_city], neurons, learning_rate, int(round(neighborhood_radius)))
-        if i % plot_interval == 0:
-            plot_map(norm_cities, neurons, save=False)
 
         if decay_type == EXPONENTIAL_DECAY:
-            pass
+            neighborhood_radius *= math.exp(-1/decay_constant)
+            learning_rate *= math.exp(-1/decay_constant/4)
         elif decay_type == LINEAR_DECAY:
-            pass
+            neighborhood_radius -= 0.01*number_of_iterations
 
-    
+        ####Statistics###
+        if i % plot_interval == 0:
+            # plot_map(norm_cities, neurons, save=False)
+            tour_distance, tour = get_tour(norm_cities, neurons, norm_scale)
+            print("\nIteration", i)
+            print("Distance after", number_of_iterations, "iterations", tour_distance)
+            print("Neighborhood radius:", neighborhood_radius)
+            print("Learning rate: ", learning_rate)
+
+
+    final_distance, final_tour = get_tour(norm_cities, neurons, norm_scale)
+    print("Distance after", number_of_iterations, "iterations:", final_distance)
+    plot_map(norm_cities, final_tour)
+
 
 
 # Western Sahara - 29
-tsp_som(DATA_WESTERN_SAHARA, 1, decay_type=STATIC_DECAY, plot_interval=1, number_of_neurons=29)
+# tsp_som(DATA_WESTERN_SAHARA, 10000, decay_type=STATIC_DECAY, plot_interval=10000, number_of_neurons=60, neighborhood_radius_fraction=0.1)
+# tsp_som(DATA_WESTERN_SAHARA, 10000, decay_type=EXPONENTIAL_DECAY, plot_interval=10000, number_of_neurons=60, neighborhood_radius_fraction=0.1)
+
+# DJIBOUTI - 38
+# tsp_som(DATA_DJIBOUTI, 5000, decay_type=STATIC_DECAY, plot_interval=10000, number_of_neurons=60, neighborhood_radius_fraction=0.1)
+
+# QATA - 194
+# tsp_som(DATA_QATAR, 5000, decay_type=STATIC_DECAY, plot_interval=10000, number_of_neurons=194, neighborhood_radius_fraction=0.1)
 
 # Uruguay - 734
-# tsp_som(DATA_URUGUAY, 1, decay_type=STATIC_DECAY, plot_interval=1, number_of_neurons=29)
+# tsp_som(DATA_URUGUAY, 10000, decay_type=STATIC_DECAY, plot_interval=10000, number_of_neurons=1000, neighborhood_radius_fraction=0.1)
+tsp_som(DATA_URUGUAY, 200000, decay_type=EXPONENTIAL_DECAY, plot_interval=10000, number_of_neurons=1500, neighborhood_radius_fraction=0.1)
 
 # city_data = normalize_coordinates(parse(DATA_URUGUAY))
 #
