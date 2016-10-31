@@ -217,7 +217,7 @@ def tsp_som(cities_datafile, number_of_iterations, plot_interval, decay_type, nu
 
     :param cities_datafile:
     :param number_of_iterations:
-    :param decay_type: 'static', 'linear' or 'exponentital'
+    :param decay_type: EXPONENTIAL_DECAY, LINEAR_DECAY or STATIC_DECAY
     :param learning_rate:
     :param neighborhood_radius_fraction: fraction of neurons used as neighbors initially (each direction in ring)
     :return:
